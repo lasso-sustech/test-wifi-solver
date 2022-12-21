@@ -20,13 +20,18 @@ class LinkBase:
 
     @classmethod
     @property
-    def name(cls):
+    def name(cls) -> str:
         return cls.__name__
     pass
 
 class AppBase:
     def __init__(self):
         self.variable = cp.Variable()
+    
+    @classmethod
+    @property
+    def name(cls) -> str:
+        return cls.__name__
     pass
 
 class RTApp(AppBase):
@@ -79,7 +84,7 @@ class DLApp(AppBase):
         ##
         mu = (1 - other_utility) * this_link.LinkRate
         self.qos = (mu/PKT - self.arrival)**(-1)
-        return self.qos
+        return self.weight*self.qos
     pass
 
 class ThruApp(AppBase):

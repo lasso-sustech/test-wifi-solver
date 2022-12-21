@@ -7,16 +7,17 @@ from utils import *
 ## Input
 class NormalLink(LinkBase):
     LinkRate = 200*MB
-    AC2 = [ ThruApp(min_thru=1*MB) ]
+    AC2 = [ ThruApp(min_thru=1*MB, weight=1) ]
 
 class NormalLinkAndDelay(LinkBase):
     LinkRate = 200*MB
-    AC2 = [ ThruApp(min_thru=1*MB), DLApp(arrival=2.375*MB/PKT, max_qos=np.Inf) ]
+    AC2 = [ ThruApp(min_thru=1*MB), 
+            DLApp(arrival=2.375*MB/PKT, max_qos=np.Inf, weight=50) ]
 
 class NormalLinkAndSidecar(LinkBase):
     LinkRate = 200*MB
-    AC1 = [ RTApp(arrival=1.25*MB/PKT, max_qos=np.Inf) ]
-    AC2 = [ ThruApp(min_thru=1*MB) ]
+    AC1 = [ RTApp(arrival=1.25*MB/PKT, max_qos=np.Inf, weight=1) ]
+    AC2 = [ ThruApp(min_thru=1*MB, weight=1) ]
 
 Links = [
     NormalLinkAndSidecar,
@@ -54,5 +55,7 @@ for link in Links:
     print(f'{link.name}: ')
     for aci, acq in enumerate(link.iter()):
         if acq:
-            value = [x.variable.value for x in acq]
-            print(f'\tAC-{aci}: {value}')
+            names = [app.name for app in acq]
+            values = [x.variable.value/MB for x in acq]
+            records = [f'{k}:{v}' for k,v in zip(names, values)]
+            print(f'\tAC-{aci}: {records}')
