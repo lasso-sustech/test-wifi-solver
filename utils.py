@@ -5,7 +5,7 @@ from itertools import product
 KB = 1000#Bytes
 MB = 1000*KB
 
-PKT = 1500*KB
+PKT = 1500#Bytes
 
 class LinkBase:
     LinkRate = 0
