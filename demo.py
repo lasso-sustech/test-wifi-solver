@@ -34,14 +34,14 @@ for link in Links:
     for aci, acq in enumerate(link.iter()):
         for app in acq:
             link_utility += app.utility / link.LinkRate
-            qos_function += app.calc_qos()
+            qos_function += app.calc_qos(link, Links)
             constraints.extend( app.constraints )
             pass
     total_utility += link_utility 
 ## bandwidth utility constraints
 constraints.extend([
     total_utility >= 0.6,
-    total_utility <= 1
+    total_utility <= 1.0
 ])
 
 ## Solution
@@ -54,5 +54,5 @@ for link in Links:
     print(f'{link.name}: ')
     for aci, acq in enumerate(link.iter()):
         if acq:
-            value = [x.variable.value/MB for x in acq]
+            value = [x.variable.value for x in acq]
             print(f'\tAC-{aci}: {value}')

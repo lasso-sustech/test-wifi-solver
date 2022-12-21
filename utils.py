@@ -35,6 +35,7 @@ class RTApp(AppBase):
         self.arrival = arrival
         self.max_qos = max_qos
         self.weight = weight
+        self.qos = None
     @property
     def utility(self):
         return self.arrival*PKT
@@ -42,19 +43,21 @@ class RTApp(AppBase):
     def constraints(self) -> list:
         return [
             self.variable >= self.arrival*PKT,
-            self.calc_qos() <= self.max_qos
+            self.qos <= self.max_qos
         ]
     
-    def calc_qos(self):
-        return 0
+    def calc_qos(self, *args, **kwargs):
+        self.qos = 0
+        return self.qos
     pass
-# cp.multiply, cp.exp, cp.inv_pos, cp.sum
+
 class DLApp(AppBase):
     def __init__(self, arrival, max_qos, weight=1.0):
         super().__init__()
         self.arrival = arrival
         self.max_qos = max_qos
         self.weight = weight
+        self.qos = None
     @property
     def utility(self):
         return self.arrival*PKT
@@ -62,11 +65,21 @@ class DLApp(AppBase):
     def constraints(self) -> list:
         return [
             self.variable >= self.arrival*PKT,
-            self.calc_qos() <= self.max_qos
+            self.qos <= self.max_qos
         ]
     
-    def calc_qos(self):
-        return 0
+    def calc_qos(self, this_link, all_links):
+        other_utility = 0
+        for link in all_links:
+            link_utility = 0
+            for acq in link.iter():
+                link_utility += sum([ app.utility / link.LinkRate for app in acq
+                                    if isinstance(app, RTApp) or isinstance(app, ThruApp) ])
+            other_utility += link_utility
+        ##
+        mu = (1 - other_utility) * this_link.LinkRate
+        self.qos = (mu/PKT - self.arrival)**(-1)
+        return self.qos
     pass
 
 class ThruApp(AppBase):
@@ -83,7 +96,7 @@ class ThruApp(AppBase):
         return [
             self.variable >= self.min_thru
         ]
-    def calc_qos(self):
+    def calc_qos(self, *args, **kwargs):
         return - self.weight*self.variable
     pass
 
