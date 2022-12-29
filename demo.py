@@ -12,33 +12,34 @@ class NormalLink(LinkBase):
 class NormalLinkAndDelay(LinkBase):
     LinkRate = 200*MB
     AC2 = [ ThruApp(min_thru=1*MB), 
-            DLApp(arrival=2.375*MB/PKT, max_qos=np.Inf, weight=10) ]
+            DLApp(pkt_size=PKT, arrival=2.375*MB, max_qos=np.Inf, weight=50) ]
 
 class NormalLinkAndSidecar(LinkBase):
     LinkRate = 200*MB
-    AC1 = [ RTApp(arrival=1.25*MB/PKT, max_qos=np.Inf, weight=1) ]
+    AC1 = [ RTApp(pkt_size=PKT, arrival=1.25*MB, max_qos=np.Inf, weight=1) ]
     AC2 = [ ThruApp(min_thru=1*MB, weight=1) ]
 
-Links = [
+AllLinks = [
     NormalLinkAndSidecar,
     NormalLinkAndDelay,
     NormalLink, NormalLink,
 ]
 
 
+
 total_utility = 0
-qos_function = 0
+qos_function  = 0
 constraints = []
 ## Problems
-for link in Links:
+for link in AllLinks:
     link_utility = 0
     for aci, acq in enumerate(link.iter()):
         for app in acq:
             link_utility += app.utility / link.LinkRate
-            qos_function += app.calc_qos(link, Links)
+            qos_function += app.calc_qos(link, AllLinks)
             constraints.extend( app.constraints )
             pass
-    total_utility += link_utility 
+    total_utility += link_utility
 ## bandwidth utility constraints
 constraints.extend([
     total_utility >= 0.6,
@@ -51,7 +52,7 @@ problem = cp.Problem(objective, constraints)
 problem.solve()
 
 ## Print
-for link in Links:
+for link in AllLinks:
     print(f'{link.name}: ')
     for aci, acq in enumerate(link.iter()):
         if acq:

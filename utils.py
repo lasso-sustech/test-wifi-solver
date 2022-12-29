@@ -35,19 +35,20 @@ class AppBase:
     pass
 
 class RTApp(AppBase):
-    def __init__(self, arrival, max_qos, weight=1.0):
+    def __init__(self, pkt_size, arrival, max_qos, weight=1.0):
         super().__init__()
-        self.arrival = arrival
+        self.pkt_size = pkt_size
+        self.arrival = arrival / pkt_size
         self.max_qos = max_qos
         self.weight = weight
         self.qos = None
     @property
     def utility(self):
-        return self.arrival*PKT
+        return self.arrival*self.pkt_size
     @property
     def constraints(self) -> list:
         return [
-            self.variable >= self.arrival*PKT,
+            self.variable >= self.arrival*self.pkt_size,
             self.qos <= self.max_qos
         ]
     
@@ -57,19 +58,20 @@ class RTApp(AppBase):
     pass
 
 class DLApp(AppBase):
-    def __init__(self, arrival, max_qos, weight=1.0):
+    def __init__(self, pkt_size, arrival, max_qos, weight=1.0):
         super().__init__()
-        self.arrival = arrival
+        self.pkt_size = pkt_size
+        self.arrival = arrival / pkt_size
         self.max_qos = max_qos
         self.weight = weight
         self.qos = None
     @property
     def utility(self):
-        return self.arrival*PKT
+        return self.arrival*self.pkt_size
     @property
     def constraints(self) -> list:
         return [
-            self.variable >= self.arrival*PKT,
+            self.variable >= self.arrival*self.pkt_size,
             self.qos <= self.max_qos
         ]
     
@@ -83,7 +85,7 @@ class DLApp(AppBase):
             other_utility += link_utility
         ##
         mu = (1 - other_utility) * this_link.LinkRate
-        self.qos = (mu/PKT - self.arrival)**(-1)
+        self.qos = 0#(mu/self.pkt_size - self.arrival)**(-1)
         return self.weight*self.qos
     pass
 
