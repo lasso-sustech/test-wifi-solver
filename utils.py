@@ -86,7 +86,7 @@ class DLApp(AppBase):
             other_utility += link_utility
         ##
         mu = (1 - other_utility) * this_link.LinkRate
-        self.qos = 0#(mu/self.pkt_size - self.arrival)**(-1)
+        self.qos = (mu/self.pkt_size - self.arrival)**(-1)
         return self.weight*self.qos
     pass
 
