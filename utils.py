@@ -26,7 +26,8 @@ class LinkBase:
 
 class AppBase:
     def __init__(self):
-        self.variable = cp.Variable()
+        # self.variable = cp.Variable()
+        pass
     
     @classmethod
     @property
@@ -48,7 +49,7 @@ class RTApp(AppBase):
     @property
     def constraints(self) -> list:
         return [
-            self.variable >= self.arrival*self.pkt_size,
+            # self.variable >= self.arrival*self.pkt_size,
             self.qos <= self.max_qos
         ]
     
@@ -71,7 +72,7 @@ class DLApp(AppBase):
     @property
     def constraints(self) -> list:
         return [
-            self.variable >= self.arrival*self.pkt_size,
+            # self.variable >= self.arrival*self.pkt_size,
             self.qos <= self.max_qos
         ]
     
@@ -90,9 +91,9 @@ class DLApp(AppBase):
     pass
 
 class ThruApp(AppBase):
-    def __init__(self, min_thru, size=np.Inf, weight=1.0):
+    def __init__(self, min_thru, weight=1.0):
         super().__init__()
-        self.size = size
+        self.variable = cp.Variable()
         self.min_thru = min_thru#Bps
         self.weight = weight
     @property
@@ -104,7 +105,7 @@ class ThruApp(AppBase):
             self.variable >= self.min_thru
         ]
     def calc_qos(self, *args, **kwargs):
-        return - self.weight*self.variable
+        return -self.weight*self.variable
     pass
 
 class ACBase:

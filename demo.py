@@ -5,24 +5,28 @@ from utils import *
 
 
 ## Input
-class NormalLink(LinkBase):
+class NormalLink1(LinkBase):
+    LinkRate = 200*MB
+    AC2 = [ ThruApp(min_thru=1*MB, weight=1) ]
+
+class NormalLink2(LinkBase):
     LinkRate = 200*MB
     AC2 = [ ThruApp(min_thru=1*MB, weight=1) ]
 
 class NormalLinkAndDelay(LinkBase):
     LinkRate = 200*MB
-    AC2 = [ ThruApp(min_thru=1*MB), 
-            DLApp(pkt_size=PKT, arrival=2.375*MB, max_qos=np.Inf, weight=50) ]
+    AC2 = [ ThruApp(min_thru=1*MB, weight=1), ]
+            # DLApp(pkt_size=PKT, arrival=2.375*MB, max_qos=np.Inf, weight=50) ]
 
 class NormalLinkAndSidecar(LinkBase):
     LinkRate = 200*MB
-    AC1 = [ RTApp(pkt_size=PKT, arrival=1.25*MB, max_qos=np.Inf, weight=1) ]
+    # AC1 = [ DLApp(pkt_size=PKT, arrival=1.25*MB, max_qos=np.Inf, weight=50) ]
     AC2 = [ ThruApp(min_thru=1*MB, weight=1) ]
 
 AllLinks = [
     NormalLinkAndSidecar,
     NormalLinkAndDelay,
-    NormalLink, NormalLink,
+    NormalLink1, NormalLink2,
 ]
 
 
@@ -39,6 +43,7 @@ for link in AllLinks:
             qos_function += app.calc_qos(link, AllLinks)
             constraints.extend( app.constraints )
             pass
+    constraints.append( link_utility <= 1.0 )
     total_utility += link_utility
 ## bandwidth utility constraints
 constraints.extend([
@@ -56,7 +61,7 @@ for link in AllLinks:
     print(f'{link.name}: ')
     for aci, acq in enumerate(link.iter()):
         if acq:
-            names = [app.name for app in acq]
-            values = [x.variable.value/MB for x in acq]
+            names = [app.name for app in acq if isinstance(app, ThruApp)]
+            values = [app.variable.value/MB for app in acq if isinstance(app, ThruApp) ] # in unit MBps
             records = [f'{k}:{v:.3f}MBps' for k,v in zip(names, values)]
             print(f'\tAC-{aci}: {records}')
