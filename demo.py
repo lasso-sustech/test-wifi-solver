@@ -5,12 +5,9 @@ from utils import *
 
 
 ## Input
-class NormalLink1(LinkBase):
+class NormalLinkAndSidecar(LinkBase):
     LinkRate = 200*MB
-    AC2 = [ ThruApp(min_thru=1*MB, weight=1) ]
-
-class NormalLink2(LinkBase):
-    LinkRate = 200*MB
+    AC1 = [ DLApp(pkt_size=PKT, arrival=1.25*MB, max_qos=20, weight=5E6) ]
     AC2 = [ ThruApp(min_thru=1*MB, weight=1) ]
 
 class NormalLinkAndDelay(LinkBase):
@@ -18,9 +15,12 @@ class NormalLinkAndDelay(LinkBase):
     AC2 = [ ThruApp(min_thru=1*MB, weight=1), 
             DLApp(pkt_size=PKT, arrival=2.375*MB, max_qos=20, weight=4E9) ]
 
-class NormalLinkAndSidecar(LinkBase):
+class NormalLink1(LinkBase):
     LinkRate = 200*MB
-    AC1 = [ DLApp(pkt_size=PKT, arrival=1.25*MB, max_qos=20, weight=5E6) ]
+    AC2 = [ ThruApp(min_thru=1*MB, weight=1) ]
+
+class NormalLink2(LinkBase):
+    LinkRate = 200*MB
     AC2 = [ ThruApp(min_thru=1*MB, weight=1) ]
 
 AllLinks = [
